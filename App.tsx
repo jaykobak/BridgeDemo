@@ -1,12 +1,5 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { useState } from 'react';
+import { StatusBar, StyleSheet, useColorScheme, View, Text, Pressable } from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -25,13 +18,15 @@ function App() {
 
 function AppContent() {
   const safeAreaInsets = useSafeAreaInsets();
+  const [message, setMessage] = useState("Press the button");
 
   return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
+    <View style={[styles.container, { paddingTop: safeAreaInsets.top }]}>
+      <Text style={ styles.message }>{message}</Text>
+
+      <Pressable onPress={() => setMessage("Button pressed")} style={ styles.button }>
+        <Text style={ styles.buttonText }>Call native code</Text>
+      </Pressable>
     </View>
   );
 }
@@ -39,6 +34,27 @@ function AppContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  message: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+
+  button: {
+    backgroundColor: '#2563EB',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

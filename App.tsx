@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StatusBar, StyleSheet, useColorScheme, View, Text, Pressable, NativeModules, Platform } from 'react-native';
+import { StatusBar, StyleSheet, useColorScheme, View, Text, Pressable, TextInput, NativeModules } from 'react-native';
 
 import {
   SafeAreaProvider,
@@ -19,30 +19,82 @@ function App() {
 
 function AppContent() {
   const safeAreaInsets = useSafeAreaInsets();
-  const [message, setMessage] = useState("Press the button");
+
   const { HelloModule } = NativeModules;
+
+  const [message, setMessage] = useState('Press the button');
+
+  const [numberA, setNumberA] = useState('');
+  const [numberB, setNumberB] = useState('');
+  const [sum, setSum] = useState('');
+
+  const [deviceModel, setDeviceModel] = useState('');
 
   const handleCallNative = async () => {
     if (!HelloModule) {
-      setMessage(`HelloModule not found on ${Platform.OS}.`);
+      setMessage(`HelloModule not found on Android.`);
       return;
     }
 
-    try {
-      const greeting = await HelloModule.sayHello('Tunde');
-      setMessage(greeting);
-    } catch (error) {
-      setMessage('Something went wrong while calling native code.');
+    const greeting = await HelloModule.sayHello('Tunde');
+    setMessage(greeting);
+  };
+
+  const handleAddNumbers = async () => {
+    if (!HelloModule) {
+      setSum(`HelloModule not found on Android.`);
+      return;
     }
+
+    const a = Number(numberA);
+    const b = Number(numberB);
+
+    const result = await HelloModule.add(a, b);
+    setSum(`Result: ${result}`);
+  };
+
+  const handleGetDeviceModel = async () => {
+    if (!HelloModule) {
+      setDeviceModel(`HelloModule not found on Android.`);
+      return;
+    }
+
+    const model = await HelloModule.getDeviceModel();
+    setDeviceModel(`Device model: ${model}`);
   };
 
   return (
-    <View style={[styles.container, { paddingTop: safeAreaInsets.top }]}>
-      <Text style={ styles.message }>{message}</Text>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: safeAreaInsets.top },
+      ]}
+    >
+      <View style={styles.content}>
+        <Text style={styles.message}>{message}</Text>
 
-      <Pressable onPress={handleCallNative} style={ styles.button }>
-        <Text style={ styles.buttonText }>Call native code</Text>
-      </Pressable>
+        {/* Native code */}
+        <Pressable style={styles.button} onPress={handleCallNative}>
+          <Text style={styles.buttonText}>Call native code</Text>
+        </Pressable>
+        
+        {/* Adding two numbers */}
+        <TextInput style={styles.input} keyboardType="decimal-pad" value={numberA} onChangeText={setNumberA}/>
+        <TextInput style={styles.input} keyboardType="decimal-pad" value={numberB} onChangeText={setNumberB}/>
+
+        <Pressable style={styles.button} onPress={handleAddNumbers}>
+          <Text style={styles.buttonText}>Add Numbers</Text>
+        </Pressable>
+
+        <Text style={styles.result}>{sum}</Text>
+
+        {/* Device model */}
+        <Pressable style={styles.button} onPress={handleGetDeviceModel}>
+          <Text style={styles.buttonText}>Get Device Model</Text>
+        </Pressable>
+
+        <Text style={styles.result}>{deviceModel}</Text>
+      </View>
     </View>
   );
 }
@@ -51,13 +103,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center'
+  },
+
+  content: {
+    padding: 24,
+    paddingBottom: 40,
   },
 
   message: {
-    fontSize: 20,
-    marginBottom: 20,
+    fontSize: 18,
+    marginBottom: 16,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 12,
+    color: '#111827',
   },
 
   button: {
@@ -65,12 +130,18 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',
+    marginBottom: 12,
   },
 
   buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+
+  result: {
+    fontSize: 17,
+    marginTop: 8,
   },
 });
 
